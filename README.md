@@ -1,5 +1,16 @@
 # Beadando_utolso
-Projekt munka:Tetovalas
+# Témajavaslat – Tetoválás gyógyulási időzítő
+
+*A projekt címe:** Tetoválás gyógyulási időzítő
+*Név:**
+*Neptunkód:** GX5Y1V
+
+*Alcíme:** Grafikus Python alkalmazás friss tetoválások napi ápolásának és gyógyulási fázisainak követésére.
+
+A program egy grafikus felülettel rendelkező Python-alkalmazás, amely a tetoválás óta eltelt napok alapján jeleníti meg a gyógyulási szakaszokat és az azokhoz tartozó ápolási tanácsokat. A felhasználó manuálisan is megadhatja az eltelt napokat, vagy a tetoválás dátumából automatikusan kiszámíttathatja azokat.
+
+A program nem használ adatbázist. A gyógyulási szakaszokat if, elif és else feltételekkel választja ki.
+
 ## A program ezeket a funkciókat fogja teljesíteni:
 
 *Interaktív napválasztás és lekérdezés:* A felhasználó egy beviteli mezőben megadhatja a tetoválás óta eltelt napok számát. A Lekérdezés gombra kattintva megjelenik az adott naphoz tartozó gyógyulási szakasz és az ápolási tanács.
