@@ -28,12 +28,6 @@ Az ablak alján **csak az „Alaphelyzet” és a „Kilépés” gomb** helyezk
 
 ## A program felépítése
 
-```text
-Tetovalas_gyogyulasi_idozito/
-├── main.py
-├── sajat_modul_bn.py
-├── README.md
-```
 
 A `tetovalas_naplo.txt` fájlt az első sikeres mentés hozza létre, ezért a leadandó projektbe nem szükséges előre elkészíteni. Nincs külön tesztmodul vagy tesztfájl. A két Python-fájlban nincs komment.
 
@@ -41,52 +35,67 @@ A `tetovalas_naplo.txt` fájlt az első sikeres mentés hozza létre, ezért a l
 
 A `TetovalasApp` osztály elkészíti a főablak tartalmát: címeket, `ttk.LabelFrame` és `ttk.Frame` kereteket, `Label` feliratokat, `Entry` mezőket és `Button` gombokat. A gombok `command=` paraméterei a megfelelő metódusra mutatnak. A metódusok a saját adatkezelő osztályt hívják meg, majd a `nezet_frissitese()` a `bn_frissites()` által visszaadott adatokat megjeleníti.
 
-**A főablak tényleges indítása a main.py 232–235. sorában történik:**
-
-```python
-if __name__ == "__main__":
-    fo_ablak = tk.Tk()
-    app = TetovalasApp(fo_ablak)
-    fo_ablak.mainloop()
-```
-
 A Python a fájl első sorától feldolgozza az importokat és a definíciókat; az alkalmazást a fenti blokk indítja el, ha a `main.py`-t közvetlenül futtatjuk. A `mainloop()` ezután figyeli a felhasználói eseményeket.
 
 ### 2. sajat_modul_bn.py – saját adatkezelő modul
 
 A `TetovalasKezeloBN` osztály tárolja a napot, a dátumot és a kiválasztott állapotot. Az ellenőrzést, a dátumszámítást, a napléptetést, az állapotválasztást, az alaphelyzet visszaállítását és a naplómentést metódusok végzik. A saját `bn_elso_fuggveny()`, `bn_masodik_fuggveny()`, `bn_harmadik_fuggveny()` és `bn_allapot_fuggveny()` függvények részt vesznek a gyógyulási szövegek összeállításában. A `bn_frissites()` egy szótárban adja vissza a felület számára szükséges értékeket.
 
-A saját modul **nem indít önálló alkalmazást**: csak definíciókat és konstansként kezelt adatokat tartalmaz. Közvetlenül futtatható Python-fájlként, de nincs benne saját GUI-indító blokk vagy `mainloop()` hívás, így nem nyit ablakot.
-
-## Modulok és a programban használt elemeik
-
-| Modul | Szerepe | Felhasznált elemek |
-|---|---|---|
-| `tkinter`, `tkinter.ttk`, `tkinter.messagebox` | Tanult grafikus modul | `Tk()`, `Label`, `Entry`, `Button`, `Frame`, `LabelFrame`, `pack()`, `get()`, `insert()`, `delete()`, `config()`, `showwarning()`, `showerror()`, `showinfo()`, `mainloop()`, `destroy()` |
-| `datetime` (`date`) | Dátumkezelés | `date.fromisoformat()`, `date.today()`, `date.isoformat()`, dátumok kivonása és `.days` |
-| **`pathlib` (`Path`)** | **Új szabványos modul: fájlelérési utak kezelése** | `Path(__file__)`, `.resolve()`, `.parent`, `/` elérésiút-összefűzés, `.open()` |
-| `sajat_modul_bn` | Saját adatkezelő modul | `TetovalasKezeloBN`, `max_nap`, `bn_frissites()` és a saját függvények, metódusok |
-
 ### A választott új modul: pathlib
 
 A `pathlib` Python szabványos modul, ezért nem kell külön telepíteni. A fájlok és mappák elérési útjait **Path objektumokkal** kezeli. A projektben a `sajat_modul_bn.py` 2. sorában importáljuk:
 
-```python
-from pathlib import Path
-```
+## Saját osztályok és függvények feladatai
 
-A 6. sorban határozzuk meg a napló helyét:
+### `TetovalasApp` osztály – `main.py`
 
-```python
-naplo_fajl = Path(__file__).resolve().parent / "tetovalas_naplo.txt"
-```
+Ez az osztály a grafikus alkalmazást építi fel és kezeli a felhasználó műveleteit. Az objektum a `self.root` változóban a főablakra, a `self.kezelo` változóban a gyógyulási adatokat kezelő objektumra hivatkozik. Emellett eltárolja a felület elemeit is: például a beviteli mezőket (`self.nap_entry`, `self.datum_entry`, `self.naplo_entry`), az eredményfeliratokat és a gombokat. Ezek nem a napló tartalmát tárolják, hanem a képernyőn megjelenő elemeket.
 
-- `__file__`: az aktuális Python-modulfájl elérési útját jelöli.
-- `Path(__file__)`: ebből útvonalobjektumot készít.
-- `.resolve()`: abszolút, feloldott elérési utat állít elő.
-- `.parent`: a modulfájlt tartalmazó mappát adja vissza.
-- `/ "tetovalas_naplo.txt"`: a mappához hozzáilleszti a fájlnevet. Ez **nem osztás**, hanem a `Path` típus által támogatott útvonal-összeállítás.
-- `naplo_fajl.open("a", encoding="utf-8")`: megnyitja a naplót hozzáfűzésre, UTF-8 kódolással; a fájlt szükség esetén létrehozza.
+- `__init__()`: eltárolja a főablakot, létrehozza az adatkezelő példányt, beállítja az ablak méretét, majd felépíti és frissíti a felületet.
+- `felulet_letrehozasa()`: elhelyezi a feliratokat, kereteket, beviteli mezőket és gombokat; összeköti a gombnyomásokat a metódusokkal.
+- `nezet_frissitese()`: elkéri a saját modulból az aktuális szövegeket, és beírja őket a megfelelő grafikus elemekbe.
+- `lekerdezes()`, `datum_lekerdezes()`: a beírt napot vagy dátumot továbbítja az adatkezelőnek, és szükség esetén figyelmeztetést mutat.
+- `kovetkezo_nap()`, `elozo_nap()`: egy nappal lépteti a kiválasztást, majd frissíti a kijelzést.
+- `enyhe_kattintas()`, `hamlas_kattintas()`, `problema_kattintas()`: a három állapotgomb eseménykezelői; az `allapot_beallitasa()` metódust hívják meg.
+- `allapot_beallitasa()`: átadja a választott állapot számát az adatkezelőnek.
+- `naplo_mentes()`: elkéri a megjegyzést, elindítja a fájlmentést, majd siker- vagy hibaüzenetet jelenít meg.
+- `alaphelyzet()`: visszaállítja az adatkezelőt, törli a beviteli mezők tartalmát és frissíti a felületet.
 
-Ennek előnye, hogy a napló **mindig a `sajat_modul_bn.py` mellett** jön létre, nem függ attól, honnan indítottuk a programot. A napló mentése a saját modul 147–160. sorában található.
+### `TetovalasKezeloBN` osztály – `sajat_modul_bn.py`
 
+Ez az osztály a program aktuális gyógyulási adatait tárolja. A `self.nap` az eltelt napok száma, a `self.allapot` a kiválasztott állapot sorszáma (0–3), a `self.datum` a tetoválás dátuma vagy `None`, a `self.statusz` pedig a „Gyógyulási folyamat” felirat. A megjegyzéseket nem az objektum őrzi meg tartósan: azok külön szövegfájlba kerülnek.
+
+- `__init__()`: beállítja a fenti kezdeti adatokat.
+- `bn_szuro_adatok()`: a nap alapján visszaadja a megfelelő ápolási tanácsot.
+- `bn_ellenorzes()`: ellenőrzi, hogy a beírt érték 0 és `max_nap` közötti egész szám-e.
+- `bn_nap_beallitasa()`: érvényes napot állít be, és kézi napválasztásra vált.
+- `bn_datum_beallitasa()`: ellenőrzi a megadott dátumot, kiszámítja az eltelt napokat, és eltárolja a dátumot.
+- `bn_kovetkezo_nap()`, `bn_elozo_nap()`: módosítja a tárolt napot a megengedett határok között.
+- `bn_allapot_valasztas()`: eltárolja a választott állapot számát, ha az érvényes.
+- `bn_alaphelyzet()`: visszaállítja az alapadatokat.
+- `bn_naplo_mentes()`: a dátumot, a napot, az állapotot és a megjegyzést hozzáfűzi a naplófájlhoz.
+
+### Önálló függvények – `sajat_modul_bn.py`
+
+Ezek nem az osztályba tartozó metódusok, hanem külön meghívható függvények. Egy-egy részfeladatot végeznek el, és visszaadják az eredményt:
+
+- `bn_elso_fuggveny(nap)`: megadja, hogy a kiválasztott nap melyik gyógyulási szakaszhoz tartozik.
+- `bn_masodik_fuggveny(szoveg)`: eltávolítja a szöveg elejéről és végéről a felesleges szóközöket.
+- `bn_harmadik_fuggveny(napok_szama)`: a nap értékét a megengedett tartományon belül tartja.
+- `bn_allapot_fuggveny(allapot)`: visszaadja a választott bőrállapothoz tartozó figyelmeztető vagy tájékoztató szöveget.
+- `bn_frissites(kezelo)`: összegyűjti az aktuális napot, gyógyulási szakaszt, ápolási tanácsot, állapotot és dátumszöveget, és egy szótárban visszaadja a grafikus felületnek.
+
+### A saját modulban tárolt közös adatok
+
+- `max_nap = 3650`: a megengedett legnagyobb napszám.
+- `allapotok`: a három választható bőrállapot neve és a „Nincs kiválasztva” szöveg egy listában.
+- `naplo_fajl`: `Path` objektum, amely megadja, hol található vagy jön létre a `tetovalas_naplo.txt`.
+
+## Futtatás
+
+1. A `main.py` és a `sajat_modul_bn.py` legyen ugyanabban a mappában.
+2. Python 3 és működő Tkinter környezet szükséges; külön `pip install` nem kell.
+3. Indítás a fejlesztőkörnyezetből vagy terminálból: `python main.py`.
+4. Válassz napot vagy adj meg dátumot, majd szükség esetén kattints az egyik állapotgombra.
+5. Írhatsz megjegyzést, amelyet a „Mentés” gomb a naplófájl végéhez fűz.
+6. Az „Alaphelyzet” visszaállítja a felület aktuális állapotát, a „Kilépés” bezárja az alkalmazást.
